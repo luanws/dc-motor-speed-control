@@ -3,6 +3,7 @@
 #include "src/services/speed.h"
 #include "src/utils/math.h"
 #include "src/utils/io.h"
+#include "src/utils/pid.h"
 #include <ReactESP.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -24,12 +25,18 @@
 
 #define PWM_TIMER_BITS_RESOLUTION 13
 #define PWM_FREQUENCY 60
-#define MAX_PWM_VALUE 8000
+#define MAX_PWM_VALUE 100
+
+#define kP 0.1
+#define kI 1
+#define kD 0.01
 
 using namespace reactesp;
 
 ReactESP appReactESP;
 ReactESP proReactESP;
+
+PID pid(kP, kI, kD);
 
 unsigned long firebaseSyncPreviousMillis = 0;
 unsigned long encoderPreviousMillis = 0;
@@ -39,7 +46,6 @@ int pulses = 0;
 float pwmOutput = 0;
 
 void firebaseSync() {
-	Serial.println("Synchronizing with Firebase...");
 	speed = SpeedService::getSpeed();
 	SpeedService::setRealSpeed(realSpeed);
 }
@@ -57,13 +63,13 @@ void calculateRealSpeed() {
 		encoderPreviousMillis = millis();
 		pulses = 0;
 		attachInterrupt(digitalPinToInterrupt(ENCODER_PIN), encoderInterrupt, RISING);
-		Serial.println("realSpeed: " + String(realSpeed, 10));
 	}
 }
 
 void adjustPwmOutput() {
-	float error = abs(speed) - realSpeed;
-	pwmOutput += absPower(error, 2);
+	pid.setSample(realSpeed);
+	pid.setSetPoint(abs(speed));
+	pwmOutput = pid.process();
 	pwmOutput = lowestHighest(pwmOutput, 0, MAX_PWM_VALUE);
 }
 
@@ -103,6 +109,17 @@ void TaskProCPU(void* arg) {
 	}
 }
 
+void serialPlot() {
+	Serial.print(100);
+	Serial.print(" ");
+	Serial.print(abs(speed));
+	Serial.print(" ");
+	Serial.print(realSpeed);
+	Serial.print(" ");
+	Serial.print(0);
+	Serial.println();
+}
+
 void setup() {
 	Serial.begin(9600);
 	wifiConnect(WIFI_SSID, WIFI_PASSWORD);
@@ -114,6 +131,7 @@ void setup() {
 	appReactESP.onTick(adjustPwmOutput);
 	appReactESP.onTick(calculateRealSpeed);
 	appReactESP.onTick(writePwmOutput);
+	appReactESP.onTick(serialPlot);
 
 	proReactESP.onTick(assertReady);
 	proReactESP.onRepeat(FIREBASE_SYNC_DELAY, firebaseSync);
