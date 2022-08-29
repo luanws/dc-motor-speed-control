@@ -1,0 +1,12 @@
+{
+  "firebaseConfig": {
+    "apiKey": "AIzaSyBBIdGkAtPxXs50k8Yxq7gUR3h4atct5QY",
+    "authDomain": "dc-motor-speed-control-39ad9.firebaseapp.com",
+    "databaseURL": "https://dc-motor-speed-control-39ad9-default-rtdb.firebaseio.com",
+    "projectId": "dc-motor-speed-control-39ad9",
+    "storageBucket": "dc-motor-speed-control-39ad9.appspot.com",
+    "messagingSenderId": "19923350253",
+    "appId": "1:19923350253:web:30efdab034d8d3edaf52e4",
+    "measurementId": "G-NQBQWTD1FN"
+  }
+}
