@@ -9,7 +9,7 @@
 
 ## Fluxo de dados
 
-O fluxo de dados consiste em trafegar a informação da velocidade desejada enviando-a do aplicativo para o ESP32 e a velocidade real do ESP32 (obtida através da leitura do encoder do motor).
+O fluxo de dados consiste em trafegar a informação da velocidade desejada enviando-a do aplicativo para o ESP32 e a velocidade real do ESP32 (obtida através da leitura do encoder do motor) para o aplicativo.
 
 <img src="README/data-flow.png">
 
